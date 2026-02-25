@@ -1,10 +1,33 @@
 import { useEffect, useState } from "react";
-import { getBooks, addBook, deleteBook, updateStatus, updateRating } from "./api";
+import {
+  getBooks,
+  addBook,
+  deleteBook,
+  updateStatus,
+  updateRating,
+  login,
+  register,
+  logout,
+} from "./api";
 
 export default function App() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+
+  // auth
+  const [mode, setMode] = useState("login"); // "login" | "register"
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authUsername, setAuthUsername] = useState("");
+  const [me, setMe] = useState(() => {
+    try {
+      const u = localStorage.getItem("user");
+      return u ? JSON.parse(u) : null;
+    } catch {
+      return null;
+    }
+  });
 
   // form
   const [baslik, setBaslik] = useState("");
@@ -43,13 +66,19 @@ export default function App() {
       setBooks(data);
     } catch (e) {
       setErr(e.message);
+      setBooks([]);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    load();
+    const token = localStorage.getItem("token");
+    if (token) load();
+    else {
+      setLoading(false);
+      setBooks([]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, durumFiltre]);
 
@@ -120,6 +149,43 @@ export default function App() {
     </span>
   );
 
+  async function onAuth(e) {
+    e.preventDefault();
+    try {
+      setErr("");
+      if (mode === "register") {
+        const data = await register({
+          username: authUsername,
+          email: authEmail,
+          password: authPassword,
+        });
+        setMe(data.user);
+      } else {
+        const data = await login({
+          email: authEmail,
+          password: authPassword,
+        });
+        setMe(data.user);
+      }
+
+      setAuthEmail("");
+      setAuthPassword("");
+      setAuthUsername("");
+      await load();
+    } catch (e2) {
+      setErr(e2.message);
+    }
+  }
+
+  function onLogout() {
+    logout();
+    setMe(null);
+    setBooks([]);
+    setErr("");
+  }
+
+  const token = localStorage.getItem("token");
+
   return (
     <div
       style={{
@@ -129,15 +195,12 @@ export default function App() {
         fontFamily:
           "ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
         color: theme.ink,
-
-        // 💌 pastel gradient bg
         background: `radial-gradient(900px 520px at 10% 0%, ${theme.bg1} 0%, transparent 60%),
                      radial-gradient(900px 520px at 90% 10%, ${theme.bg2} 0%, transparent 58%),
                      radial-gradient(900px 520px at 50% 100%, ${theme.bg3} 0%, transparent 62%),
                      linear-gradient(180deg, #fff7fb 0%, #ffffff 45%, #fff7fb 100%)`,
       }}
     >
-      {/* css keyframes (inline) */}
       <style>{`
         @keyframes kittyBounce {
           0%, 100% { transform: translateY(0) rotate(-2deg); }
@@ -162,7 +225,7 @@ export default function App() {
           overflow: "hidden",
         }}
       >
-        {/* 🧁 cute floating sparkles */}
+        {/* sparkles */}
         <div
           style={{
             position: "absolute",
@@ -201,7 +264,7 @@ export default function App() {
           }}
         >
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            {/* 🐱 animated kitty */}
+            {/* animated kitty */}
             <div
               style={{
                 width: 52,
@@ -224,145 +287,282 @@ export default function App() {
                 VERAS <span style={{ color: theme.pink }}>🐾</span>
               </div>
               <div style={{ color: theme.muted, marginTop: 4 }}>
-                 kitap ajandası • vera destekli ✨
+                soft pembe kitap ajandası • mırmır destekli ✨
               </div>
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <Badge> {books.length} kitap</Badge>
-            
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+            <Badge>📚 {books.length} kitap</Badge>
+
+            {token ? (
+              <>
+                <Badge>👤 {me?.username || me?.email || "Giriş yapıldı"}</Badge>
+                <button
+                  onClick={onLogout}
+                  style={{
+                    border: `1px solid ${theme.border}`,
+                    background: "#fff",
+                    borderRadius: 12,
+                    padding: "10px 12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Çıkış
+                </button>
+              </>
+            ) : (
+              <Badge>🔒 Giriş gerekli</Badge>
+            )}
           </div>
         </div>
 
-        {/* search + filter */}
-        <div
-          style={{
-            marginTop: 14,
-            display: "flex",
-            gap: 10,
-            flexWrap: "wrap",
-            alignItems: "center",
-          }}
-        >
-          <input
-            placeholder="🔎 Ara (başlık / yazar / tür)"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
+        {/* AUTH BOX */}
+        {!token && (
+          <form
+            onSubmit={onAuth}
             style={{
-              flex: 1,
-              minWidth: 240,
-              padding: "12px 12px",
-              borderRadius: 12,
+              marginTop: 14,
+              padding: 14,
+              borderRadius: 16,
               border: `1px solid ${theme.border}`,
-              outline: "none",
+              background: "#fff",
               boxShadow: theme.shadow2,
-              background: "white",
-                color: theme.ink,
-              
-            }}
-          />
-
-          <select
-            value={durumFiltre}
-            onChange={(e) => setDurumFiltre(e.target.value)}
-            style={{
-              padding: "12px 12px",
-              borderRadius: 12,
-              border: `1px solid ${theme.border}`,
-              outline: "none",
-              background: "white",
-              boxShadow: theme.shadow2,
-              color: theme.ink,
+              display: "grid",
+              gap: 10,
             }}
           >
-            <option value="">Hepsi</option>
-            <option value="okunacak">okunacak</option>
-            <option value="okunuyor">okunuyor</option>
-            <option value="okundu">okundu</option>
-          </select>
-        </div>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button
+                type="button"
+                onClick={() => setMode("login")}
+                style={{
+                  border: `1px solid ${theme.border}`,
+                  background: mode === "login" ? theme.pink2 : "#fff",
+                  color: theme.ink,
+                  borderRadius: 12,
+                  padding: "10px 12px",
+                  cursor: "pointer",
+                  fontWeight: 800,
+                }}
+              >
+                Giriş
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("register")}
+                style={{
+                  border: `1px solid ${theme.border}`,
+                  background: mode === "register" ? theme.pink2 : "#fff",
+                  color: theme.ink,
+                  borderRadius: 12,
+                  padding: "10px 12px",
+                  cursor: "pointer",
+                  fontWeight: 800,
+                }}
+              >
+                Kayıt Ol
+              </button>
+            </div>
+
+            {mode === "register" && (
+              <input
+                placeholder="Kullanıcı adı"
+                value={authUsername}
+                onChange={(e) => setAuthUsername(e.target.value)}
+                style={{
+                  padding: "12px 12px",
+                  borderRadius: 12,
+                  border: `1px solid ${theme.border}`,
+                  outline: "none",
+                  background: "white",
+                  color: theme.ink,
+                }}
+              />
+            )}
+
+            <input
+              placeholder="Email"
+              value={authEmail}
+              onChange={(e) => setAuthEmail(e.target.value)}
+              style={{
+                padding: "12px 12px",
+                borderRadius: 12,
+                border: `1px solid ${theme.border}`,
+                outline: "none",
+                background: "white",
+                color: theme.ink,
+              }}
+            />
+
+            <input
+              placeholder="Şifre"
+              type="password"
+              value={authPassword}
+              onChange={(e) => setAuthPassword(e.target.value)}
+              style={{
+                padding: "12px 12px",
+                borderRadius: 12,
+                border: `1px solid ${theme.border}`,
+                outline: "none",
+                background: "white",
+                color: theme.ink,
+              }}
+            />
+
+            <button
+              type="submit"
+              style={{
+                padding: "12px 14px",
+                borderRadius: 14,
+                border: "none",
+                cursor: "pointer",
+                background: `linear-gradient(135deg, ${theme.pink} 0%, #ff9ac6 100%)`,
+                color: "white",
+                fontWeight: 900,
+                boxShadow: theme.shadow,
+              }}
+            >
+              {mode === "register" ? "Kayıt Ol 🐱" : "Giriş Yap 🐱"}
+            </button>
+
+            <div style={{ color: theme.muted, fontSize: 12 }}>
+              Giriş yaptıktan sonra sadece <b>kendi</b> kitapların görünür.
+            </div>
+          </form>
+        )}
+
+        {/* search + filter */}
+        {token && (
+          <div
+            style={{
+              marginTop: 14,
+              display: "flex",
+              gap: 10,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
+            <input
+              placeholder="🔎 Ara (başlık / yazar / tür)"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              style={{
+                flex: 1,
+                minWidth: 240,
+                padding: "12px 12px",
+                borderRadius: 12,
+                border: `1px solid ${theme.border}`,
+                outline: "none",
+                boxShadow: theme.shadow2,
+                background: "white",
+                color: theme.ink,
+              }}
+            />
+
+            <select
+              value={durumFiltre}
+              onChange={(e) => setDurumFiltre(e.target.value)}
+              style={{
+                padding: "12px 12px",
+                borderRadius: 12,
+                border: `1px solid ${theme.border}`,
+                outline: "none",
+                background: "white",
+                boxShadow: theme.shadow2,
+                color: theme.ink,
+              }}
+            >
+              <option value="">Hepsi</option>
+              <option value="okunacak">okunacak</option>
+              <option value="okunuyor">okunuyor</option>
+              <option value="okundu">okundu</option>
+            </select>
+          </div>
+        )}
 
         {/* add form */}
-        <form
-          onSubmit={onSubmit}
-          style={{
-            marginTop: 14,
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 10,
-          }}
-        >
-          <input
-            placeholder="📌 Başlık"
-            value={baslik}
-            onChange={(e) => setBaslik(e.target.value)}
+        {token && (
+          <form
+            onSubmit={onSubmit}
             style={{
-              padding: "12px 12px",
-              borderRadius: 12,
-              border: `1px solid ${theme.border}`,
-              outline: "none",
-              background: "white",
-              color: theme.ink,
-            }}
-          />
-          <input
-            placeholder="✍️ Yazar"
-            value={yazar}
-            onChange={(e) => setYazar(e.target.value)}
-            style={{
-              padding: "12px 12px",
-              borderRadius: 12,
-              border: `1px solid ${theme.border}`,
-              outline: "none",
-              background: "white",
-              color: theme.ink,
-            }}
-          />
-          <input
-            placeholder="🎀 Tür"
-            value={tur}
-            onChange={(e) => setTur(e.target.value)}
-            style={{
-              padding: "12px 12px",
-              borderRadius: 12,
-              border: `1px solid ${theme.border}`,
-              outline: "none",
-              background: "white",
-              color: theme.ink,
-            }}
-          />
-          <input
-            placeholder="⭐ Puan (0-10)"
-            value={puan}
-            onChange={(e) => setPuan(e.target.value)}
-            style={{
-              padding: "12px 12px",
-              borderRadius: 12,
-              border: `1px solid ${theme.border}`,
-              outline: "none",
-              background: "white",
-              color: theme.ink,
-            }}
-          />
-
-          <button
-            type="submit"
-            style={{
-              gridColumn: "1 / -1",
-              padding: "12px 14px",
-              borderRadius: 14,
-              border: "none",
-              cursor: "pointer",
-              background: `linear-gradient(135deg, ${theme.pink} 0%, #ff9ac6 100%)`,
-              color: "white",
-              fontWeight: 900,
-              boxShadow: theme.shadow,
+              marginTop: 14,
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 10,
             }}
           >
-            + Kitap Ekle 🐱
-          </button>
-        </form>
+            <input
+              placeholder="📌 Başlık"
+              value={baslik}
+              onChange={(e) => setBaslik(e.target.value)}
+              style={{
+                padding: "12px 12px",
+                borderRadius: 12,
+                border: `1px solid ${theme.border}`,
+                outline: "none",
+                background: "white",
+                color: theme.ink,
+              }}
+            />
+            <input
+              placeholder="✍️ Yazar"
+              value={yazar}
+              onChange={(e) => setYazar(e.target.value)}
+              style={{
+                padding: "12px 12px",
+                borderRadius: 12,
+                border: `1px solid ${theme.border}`,
+                outline: "none",
+                background: "white",
+                color: theme.ink,
+              }}
+            />
+            <input
+              placeholder="🎀 Tür"
+              value={tur}
+              onChange={(e) => setTur(e.target.value)}
+              style={{
+                padding: "12px 12px",
+                borderRadius: 12,
+                border: `1px solid ${theme.border}`,
+                outline: "none",
+                background: "white",
+                color: theme.ink,
+              }}
+            />
+            <input
+              placeholder="⭐ Puan (0-10)"
+              value={puan}
+              onChange={(e) => setPuan(e.target.value)}
+              style={{
+                padding: "12px 12px",
+                borderRadius: 12,
+                border: `1px solid ${theme.border}`,
+                outline: "none",
+                background: "white",
+                color: theme.ink,
+              }}
+            />
+
+            <button
+              type="submit"
+              style={{
+                gridColumn: "1 / -1",
+                padding: "12px 14px",
+                borderRadius: 14,
+                border: "none",
+                cursor: "pointer",
+                background: `linear-gradient(135deg, ${theme.pink} 0%, #ff9ac6 100%)`,
+                color: "white",
+                fontWeight: 900,
+                boxShadow: theme.shadow,
+              }}
+            >
+              + Kitap Ekle 🐱
+            </button>
+          </form>
+        )}
 
         {/* error */}
         {err && (
@@ -386,7 +586,19 @@ export default function App() {
             Kitaplar 🧁
           </div>
 
-          {loading ? (
+          {!token ? (
+            <div
+              style={{
+                padding: 16,
+                borderRadius: 16,
+                border: `1px dashed ${theme.border}`,
+                background: "#fff",
+                color: theme.muted,
+              }}
+            >
+              Kişiye özel koleksiyon için önce giriş yap 🐾
+            </div>
+          ) : loading ? (
             <div style={{ color: theme.muted }}>Yükleniyor… mırmır 🐾</div>
           ) : books.length === 0 ? (
             <div
@@ -469,7 +681,6 @@ export default function App() {
                             background: "#fff",
                             outline: "none",
                             color: theme.ink,
-                            fontWeight: 700,
                           }}
                         >
                           <option value="okunacak">okunacak</option>
@@ -486,7 +697,6 @@ export default function App() {
                             outline: "none",
                             background: "#fff",
                             color: theme.ink,
-                            fontWeight: 700,
                           }}
                           placeholder="Puan"
                           defaultValue={b.puan ?? ""}
@@ -527,7 +737,6 @@ export default function App() {
           )}
         </div>
 
-        {/* footer */}
         <div style={{ marginTop: 16, color: theme.muted, fontSize: 12 }}>
           Efsa Nur Bölükbaş tarafından geliştirildi.
         </div>
