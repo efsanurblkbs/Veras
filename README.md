@@ -1,29 +1,36 @@
-# 🐾 VERAS – Kitap Ajandası
+# 🐱 VERAS – Book Tracker
 
-Soft pembe tasarımlı, kedi temalı bir kitap takip uygulaması.  
-Okuduğun, okuyacağın ve okuyor olduğun kitapları Vera ile yönetebilirsin ✨
+VERAS, modern bir kitap takip uygulamasıdır.  
+Kullanıcılar kitap ekleyebilir, durum değiştirebilir, puan verebilir ve koleksiyonlarını minimal ve tatlı bir arayüzde yönetebilir.
 
----
-
-## 🚀 Canlı Demo
-
-🌐 Frontend (Vercel):  
-👉 https://veras-ten.vercel.app
-
-⚙️ Backend API (Render):  
-👉 https://veras-backend.onrender.com/api/books
+✨ Full-stack React + Node.js + MongoDB projesi.
 
 ---
 
-## ✨ Özellikler
+## 🚀 Live Demo
 
-- 📚 Kitap ekleme / silme
-- ⭐ Puan verme (0-10)
-- 🏷️ Tür ve yazar bilgisi
-- 🔎 Arama filtresi
-- 🐱 Soft pembe modern arayüz
-- ☁️ MongoDB veritabanı bağlantısı
-- ⚡ Fullstack deployment (Render + Vercel)
+🌐 Frontend (Canlı Site)  
+https://veras-ten.vercel.app
+
+⚙️ Backend API  
+https://veras-backend.onrender.com
+
+📡 API endpoint örneği:  
+https://veras-backend.onrender.com/api/books
+
+---
+
+## Özellikler
+
+- 📚 Kitap ekleme ve silme
+- 🔎 Başlık / yazar / tür arama
+- ⭐ Puan verme ve güncelleme
+- 📌 Okuma durumları:
+  - okunacak
+  - okunuyor
+  - okundu
+- 🐱 Animasyonlu soft pembe UI
+- ☁️ Cloud deploy (Vercel + Render)
 
 ---
 
@@ -31,12 +38,14 @@ Okuduğun, okuyacağın ve okuyor olduğun kitapları Vera ile yönetebilirsin �
 
 ### Frontend
 - React (Vite)
-- CSS Soft UI Design
+- Modern CSS
+- Soft UI Tasarım
 
 ### Backend
 - Node.js
 - Express.js
 - MongoDB Atlas
+- REST API
 
 ### Deployment
 - Vercel (Frontend)
@@ -44,26 +53,39 @@ Okuduğun, okuyacağın ve okuyor olduğun kitapları Vera ile yönetebilirsin �
 
 ---
 
-## ⚙️ Local Kurulum
+## ⚡ Local Kurulum
 
-Projeyi kendi bilgisayarında çalıştırmak için:
+Projeyi bilgisayarında çalıştırmak için:
 
-git clone https://github.com/efsanurblkbs/veras.git  
-cd veras  
-npm install  
+```bash
+git clone https://github.com/efsanurblkbs/veras.git
+cd veras
+```
+
+### Frontend çalıştırma
+
+```bash
+npm install
 npm run dev
+```
+
+### Backend çalıştırma
+
+```bash
+npm install
+node server.js
+```
+
+.env içine MongoDB bağlantı stringini eklemeyi unutma.
 
 ---
 
-## 🔐 Environment Variables
+## 👩‍💻 Geliştirici
 
-Frontend için `.env`:
-
-VITE_API_BASE=https://veras-backend.onrender.com
+Efsa Nur Bölükbaş  
+Computer Engineering Student
 
 ---
 
-## 💗 Geliştirici
-
-Efsa Nur Bölükbaş tarafından tasarlanıp geliştirildi.  
-Bilgisayar Mühendisliği 3. sınıf öğrencisi ✨
+## 💗 Not
+Bu proje modern full-stack mimariyi öğrenmek, API entegrasyonu yapmak ve soft UI tasarım pratiği kazanmak amacıyla geliştirilmiştir.
