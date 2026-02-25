@@ -1,16 +1,69 @@
-# React + Vite
+# 🐾 VERAS – Kitap Ajandası
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Soft pembe tasarımlı, kedi temalı bir kitap takip uygulaması.  
+Okuduğun, okuyacağın ve okuyor olduğun kitapları Vera ile yönetebilirsin ✨
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Canlı Demo
 
-## React Compiler
+🌐 Frontend (Vercel):  
+👉 https://veras-ten.vercel.app
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+⚙️ Backend API (Render):  
+👉 https://veras-backend.onrender.com
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## ✨ Özellikler
+
+- 📚 Kitap ekleme / silme
+- ⭐ Puan verme (0-10)
+- 🏷️ Tür ve yazar bilgisi
+- 🔎 Arama filtresi
+- 🐱 Soft pembe modern arayüz
+- ☁️ MongoDB veritabanı bağlantısı
+- ⚡ Fullstack deployment (Render + Vercel)
+
+---
+
+## 🛠️ Kullanılan Teknolojiler
+
+### Frontend
+- React (Vite)
+- CSS Soft UI Design
+
+### Backend
+- Node.js
+- Express.js
+- MongoDB Atlas
+
+### Deployment
+- Vercel (Frontend)
+- Render (Backend)
+
+---
+
+## ⚙️ Local Kurulum
+
+Projeyi kendi bilgisayarında çalıştırmak için:
+
+git clone https://github.com/efsanurblkbs/veras.git  
+cd veras  
+npm install  
+npm run dev
+
+---
+
+## 🔐 Environment Variables
+
+Frontend için `.env`:
+
+VITE_API_BASE=https://veras-backend.onrender.com
+
+---
+
+## 💗 Geliştirici
+
+Efsa Nur Bölükbaş tarafından tasarlanıp geliştirildi.  
+Bilgisayar Mühendisliği 3. sınıf öğrencisi ✨
